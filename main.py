@@ -1,4 +1,5 @@
 import logging
+import uuid 
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -50,6 +51,7 @@ async def health_check():
 @app.post("/producer", summary="Send event to Event Hub")
 async def send_event(payload: Union[EventPayload, BatchEventPayload]):
     """Receives a JSON payload or batch and sends events to Azure Event Hub"""
+    request_id = str(uuid.uuid4()) 
     try:
         # normalize to a list of EventPayload
         events = (
@@ -61,7 +63,8 @@ async def send_event(payload: Union[EventPayload, BatchEventPayload]):
         # send each payload in its own batch
         for evt in events:
             await producer.send_event(evt.messages)
-        return {"detail": f"{len(events)} event(s) sent successfully"}
+        return {"request_id": request_id,
+                "detail": f"{len(events)} event(s) sent successfully"}
     except ValueError as ve:
         logger.warning(f"Validation error when sending event: {ve}")
         raise HTTPException(status_code=400, detail=str(ve))
@@ -73,8 +76,8 @@ async def send_event(payload: Union[EventPayload, BatchEventPayload]):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "main:app", 
-        host="0.0.0.0", 
-        port=8082, 
+        "main:app",
+        host="0.0.0.0",
+        port=8082,
         reload=True
     )
