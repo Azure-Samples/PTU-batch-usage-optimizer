@@ -1,19 +1,13 @@
 import logging
 import uuid 
-import json
 
 from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.responses import JSONResponse
 from app.src.producer import Producer
 from app.src.consumer import Consumer
-from app.schemas import EventPayload, BatchEventPayload
 from app.config import settings
-import httpx
-from azure.cosmos.aio import CosmosClient
-from azure.eventhub.aio import EventHubConsumerClient
-from azure.eventhub import EventData
 from contextlib import asynccontextmanager
-from typing import Union, Any
+from typing import Any
 from azure.eventhub.extensions.checkpointstoreblobaio import BlobCheckpointStore
 
 # Configure logging

@@ -23,21 +23,13 @@ class Consumer:
         )
 
     async def get_openai_utilization(self):
-        # This is a stub. You'd use Azure Monitor REST API here.
-        # Return a float representing the utilization metric.
-        # Example: Use httpx to call the Azure Monitor API with proper auth.
-        # For now, return a dummy value for demonstration.
         return 0.3
 
     async def call_openai_api(self, messages):
-        # This is a stub. You'd use httpx to call the OpenAI API.
-        # Return the response as a dict.
         logger.info(f"Calling OpenAI API with messages: {messages}")
         return {"choices": [{"text": "OpenAI response"}]}
 
     async def persist_to_cosmos(self, request_id, openai_response):
-        # This is a stub. You'd use CosmosClient to persist the data.
-        # Example: await container.upsert_item({...})
         logger.info(f"Persisting to CosmosDB: {request_id}, {openai_response}")
         pass
 
