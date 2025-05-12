@@ -6,6 +6,7 @@ from azure.eventhub.extensions.checkpointstoreblobaio import BlobCheckpointStore
 from azure.cosmos.aio import CosmosClient
 from ..config import settings
 from app.src.azure_openai import AzureOpenAI
+from app.src.cosmos import CosmosDBClient
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +23,10 @@ class Consumer:
             checkpoint_store=self.checkpoint_store
         )
         self.azure_openai = AzureOpenAI()
+        self.cosmos_client = CosmosDBClient()
 
     async def get_openai_utilization(self):
         return 0.3
-
-    async def persist_to_cosmos(self, request_id, openai_response):
-        logger.info(f"Persisting to CosmosDB: {request_id}, {openai_response}")
-        pass
 
     async def consume_event(self):
         processed_count = 0
@@ -57,9 +55,16 @@ class Consumer:
                     return
                 utilization = await self.get_openai_utilization()
                 if utilization < settings.METRIC_THRESHOLD:
+                    # Call the Azure OpenAI API
                     openai_response = await self.azure_openai.send_llm_request(aoai_payload)
-                    await self.persist_to_cosmos(payload.get("request_id"), openai_response)
+
+                    # Persist the OpenAI response to CosmosDB
+                    await self.cosmos_client.persist_response(payload.get("request_id"), 
+                                                              openai_response)
+
+                    # Checkpoint the event
                     await partition_context.update_checkpoint(event)
+
                     processed_count += 1
                     logger.info(f"Event processed and checkpointed. Request ID: {payload.get('request_id')}")
                 else:

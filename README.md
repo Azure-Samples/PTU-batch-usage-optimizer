@@ -72,6 +72,19 @@ Content-Type: application/json
 { "detail": "Event sent successfully" }
 ```
 
+## CosmosDB EntraID permissions
+We use the [CosmosDB native RBAC](https://aka.ms/cosmos-native-rbac) to authenticate with the application. Follow the instructions below to give the permission to the user/service-principal:
+
+1. `az login`
+2. Allow Key authentication on Azure CosmosDB
+
+```bash
+resourceGroupName=<your-resource-group-name>
+accountName=<your-cosmosdb-account-name>
+
+az resource update --resource-type "Microsoft.DocumentDB/databaseAccounts" --resource-group $resourceGroupName --name $accountName --set properties.disableLocalAuth=false
+```
+
 ## Environment Variables
 
 - `EVENTHUB_CONNECTION_STR` - Connection string for the Azure Event Hub namespace
