@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 # Checkpoint store for Event Hub
 checkpoint_store = BlobCheckpointStore.from_connection_string(
-    settings.STOREAGE_ACCOUNT_CHECKPOINT_STORE,
-    settings.STOREAGE_ACCOUNT_CHECKPOINT_STORE_CONTAINER
+    settings.STORAGE_ACCOUNT_CHECKPOINT_STORE,
+    settings.STORAGE_ACCOUNT_CHECKPOINT_STORE_CONTAINER
     
 )
 
