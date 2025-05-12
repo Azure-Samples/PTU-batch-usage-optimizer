@@ -1,11 +1,11 @@
 import json
 import logging
-import httpx
 from azure.eventhub.aio import EventHubConsumerClient
 from azure.eventhub import EventData
 from azure.eventhub.extensions.checkpointstoreblobaio import BlobCheckpointStore
 from azure.cosmos.aio import CosmosClient
 from ..config import settings
+from app.src.azure_openai import AzureOpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +21,10 @@ class Consumer:
             eventhub_name=settings.EVENTHUB_NAME,
             checkpoint_store=self.checkpoint_store
         )
+        self.azure_openai = AzureOpenAI()
 
     async def get_openai_utilization(self):
         return 0.3
-
-    async def call_openai_api(self, messages):
-        logger.info(f"Calling OpenAI API with messages: {messages}")
-        return {"choices": [{"text": "OpenAI response"}]}
 
     async def persist_to_cosmos(self, request_id, openai_response):
         logger.info(f"Persisting to CosmosDB: {request_id}, {openai_response}")
@@ -42,12 +39,25 @@ class Consumer:
                 payload = event.body_as_str(encoding="UTF-8")
                 payload = json.loads(payload)
                 messages = payload.get("messages")
+
+                # get the remaining payload content (expect messages and request_id)
+                content = {k: v for k, v in payload.items() if k not in ["messages", "request_id"]}
+
+                logger.info(f"Payload content: {content}")
+                logger.info(f"Messages: {messages}")
+
+                # Consolidate the azure openai API call as a JSON object
+                aoai_payload = {
+                    "messages": messages,
+                    **content
+                }
+
                 if not messages:
                     logger.warning("No 'messages' in event payload")
                     return
                 utilization = await self.get_openai_utilization()
                 if utilization < settings.METRIC_THRESHOLD:
-                    openai_response = await self.call_openai_api(messages)
+                    openai_response = await self.azure_openai.send_llm_request(aoai_payload)
                     await self.persist_to_cosmos(payload.get("request_id"), openai_response)
                     await partition_context.update_checkpoint(event)
                     processed_count += 1

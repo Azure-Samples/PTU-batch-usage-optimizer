@@ -7,9 +7,9 @@ class AzureOpenAI():
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.deployment_name = os.getenv("AZURE_OPENAI_PTU_DEPLOYMENT_NAME")
 
-    def send_llm_request(self, 
-                         payload):
-        if not self.api_key or not self.endpoint or not self.model:
+    async def send_llm_request(self, 
+                               payload):
+        if not self.api_key or not self.endpoint or not self.deployment_name:
             raise ValueError("API key, endpoint, or model not found in environment variables")
 
         headers = {
@@ -26,4 +26,4 @@ class AzureOpenAI():
         elif response.status_code != 200:
             raise Exception(f"Request failed with status code {response.status_code}: {response.text}")
 
-        return response.json()['choices'][0]['message']['content']
+        return response.json()

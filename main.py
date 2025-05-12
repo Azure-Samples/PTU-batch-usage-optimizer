@@ -70,10 +70,7 @@ async def send_event(payload: Any = Body(...)):
 
         # send each payload in its own batch
         for raw_evt in raw_events:
-            messages = raw_evt.get("messages")
-            if messages is None:
-                raise ValueError("Missing 'messages' field in payload")
-            event_to_send = {"request_id": request_id, "messages": messages}
+            event_to_send = {"request_id": request_id, **raw_evt}
             await producer.send_event(event_to_send)
 
         return {"request_id": request_id,
