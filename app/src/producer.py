@@ -1,7 +1,7 @@
 import json
 from azure.eventhub.aio import EventHubProducerClient
 from azure.eventhub import EventData
-from .config import settings
+from ..config import settings
 import logging
 
 logger = logging.getLogger(__name__)
