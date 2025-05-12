@@ -4,7 +4,6 @@ import uuid
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from app.producer import Producer
-from app.config import settings
 from app.schemas import EventPayload, BatchEventPayload
 from contextlib import asynccontextmanager
 from typing import Union
