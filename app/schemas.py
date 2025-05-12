@@ -5,7 +5,6 @@ from typing import Dict, Any, List
 class EventPayload(BaseModel):
     """Schema for incoming event payload"""
     messages: List[Dict[str, Any]] = Field(
-        ...,
         description="List of messages"
     )
 

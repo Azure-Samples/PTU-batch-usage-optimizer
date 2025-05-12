@@ -1,12 +1,12 @@
 import logging
 import uuid 
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.responses import JSONResponse
 from app.producer import Producer
 from app.schemas import EventPayload, BatchEventPayload
 from contextlib import asynccontextmanager
-from typing import Union
+from typing import Union, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +30,7 @@ app = FastAPI(
 try:
     producer = Producer()
     logger.info("EventHub client initialized successfully")
+    eventhub_client = producer  # alias for tests compatibility
 except Exception as err:
     logger.error(f"Failed to initialize EventHub client: {err}")
     raise
@@ -48,22 +49,21 @@ async def health_check():
     return {"status": "healthy"}
 
 @app.post("/producer", summary="Send event to Event Hub")
-async def send_event(payload: Union[EventPayload, BatchEventPayload]):
-    """Receives a JSON payload or batch and sends events to Azure Event Hub"""
-    request_id = str(uuid.uuid4()) 
+async def send_event(payload: Any = Body(...)):
+    """Receives raw JSON (dict or list) and sends events to Azure Event Hub"""
+    request_id = str(uuid.uuid4())
     try:
-        # normalize to a list of EventPayload
-        events = (
-            payload.root     # type: ignore[attr-defined]
-            if isinstance(payload, BatchEventPayload)
-            else [payload]
-        )
-
+        # Determine if single or batch
+        raw_events = payload if isinstance(payload, list) else [payload]
         # send each payload in its own batch
-        for evt in events:
-            await producer.send_event(evt.messages)
+        for raw_evt in raw_events:
+            messages = raw_evt.get("messages")
+            if messages is None:
+                raise ValueError("Missing 'messages' field in payload")
+            event_to_send = {"request_id": request_id, "messages": messages}
+            await producer.send_event(event_to_send)
         return {"request_id": request_id,
-                "detail": f"{len(events)} event(s) sent successfully"}
+                "detail": f"{len(raw_events)} event(s) sent successfully"}
     except ValueError as ve:
         logger.warning(f"Validation error when sending event: {ve}")
         raise HTTPException(status_code=400, detail=str(ve))
