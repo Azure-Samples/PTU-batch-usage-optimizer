@@ -22,7 +22,7 @@ class CosmosDBClient:
                 db = client.get_database_client(self.database_name)
                 container = db.get_container_client(self.container_name)
                 document = {
-                    "request_id": request_id,
+                    "id": request_id,
                     "openai_response": openai_response
                 }
                 await container.create_item(document)

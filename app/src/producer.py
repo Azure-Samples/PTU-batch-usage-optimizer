@@ -21,8 +21,10 @@ class Producer:
         """Create a batch and send event data asynchronously"""
         # Create a batch
         event_data_batch = await self.client.create_batch()
+
         # Add event data
         event_data_batch.add(EventData(json.dumps(payload)))
+
         # Send batch within async context
         async with self.client:
             await self.client.send_batch(event_data_batch)
