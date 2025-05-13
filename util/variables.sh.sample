@@ -1,0 +1,14 @@
+
+# Azure Container Registry
+prefix="<YOUR_PREFIX>"
+acrName="<YOUR_ACR_NAME>"
+acrResourceGrougName="<YOUR_ACR_RESOURCE_GROUP_NAME>"
+location="<YOUR_LOCATION>" # e.g., "EastUS" or "WestEurope"
+
+# Python File
+docAppFile="main.py"
+
+# Docker Image
+docImageName="<YOUR_IMAGE_NAME>"
+tag="v1"
+port="8082"

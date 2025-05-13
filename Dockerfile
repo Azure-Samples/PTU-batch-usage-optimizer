@@ -1,5 +1,5 @@
 # Use official Python image as base
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port and start the API
-EXPOSE 80
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+EXPOSE 8082
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8082"]

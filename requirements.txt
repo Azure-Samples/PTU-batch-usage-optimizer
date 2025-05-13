@@ -4,3 +4,5 @@ azure-eventhub==5.15.0
 python-dotenv==1.1.0
 azure-eventhub-checkpointstoreblob-aio==1.2.0
 azure-monitor-query==1.4.1
+azure-cosmos==4.9.0
+azure-identity==1.22.0
