@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.responses import JSONResponse
 from app.src.producer import Producer
 from app.src.consumer import Consumer
+from app.src.cosmos import CosmosDBClient
 from app.config import settings
 from contextlib import asynccontextmanager
 from typing import Any
@@ -39,9 +40,10 @@ app = FastAPI(
 try:
     producer = Producer()
     consumer = Consumer(checkpoint_store=checkpoint_store)
-    logger.info("Producer and Consumer were initialized successfully")
+    cosmos_client = CosmosDBClient()
+    logger.info("Producer, Consumer, and CosmosDBClient were initialized successfully")
 except Exception as err:
-    logger.error(f"Failed to initialize the Producer/Consumer: {err}")
+    logger.error(f"Failed to initialize the Producer/Consumer/CosmosDBClient: {err}")
     raise
 
 @app.exception_handler(Exception)
@@ -65,10 +67,13 @@ async def send_event(payload: Any = Body(...)):
         # Determine if single or batch
         raw_events = payload if isinstance(payload, list) else [payload]
 
+        request_ids = []
+
         # send each payload in its own batch
         for raw_evt in raw_events:
-            # Generate an unique request ID
+            # Generate a unique request ID
             request_id = str(uuid.uuid4())
+            request_ids.append(request_id)
 
             # Prepare the event to send
             event_to_send = {"request_id": request_id, **raw_evt}
@@ -76,8 +81,10 @@ async def send_event(payload: Any = Body(...)):
             # Send the event
             await producer.send_event(event_to_send)
 
-        return {"request_id": request_id,
-                "detail": f"{len(raw_events)} event(s) sent successfully"}
+        return {
+            "request_ids": request_ids,
+            "detail": f"{len(raw_events)} event(s) sent successfully"
+        }
     except ValueError as ve:
         logger.warning(f"Validation error when sending event: {ve}")
         raise HTTPException(status_code=400, detail=str(ve))
@@ -90,6 +97,18 @@ async def consume_event():
     """Consumes an event from Event Hub, checks metric, calls OpenAI, persists response, and marks event as processed."""
     processed_count = await consumer.consume_event()
     return {"Events Processed": processed_count}
+
+@app.get("/response/{request_id}", summary="Get Azure OpenAI response by request_id")
+async def get_openai_response(request_id: str):
+    """Fetch the OpenAI response from CosmosDB by request_id."""
+    try:
+        doc = await cosmos_client.get_response_by_request_id(request_id)
+        if doc is None:
+            return {"status": "processing", "detail": "Request is still being processed or not found."}
+        return {"status": "completed", "response": doc.get("openai_response")}
+    except Exception as ex:
+        logger.error(f"Error fetching response for request_id {request_id}: {ex}")
+        raise HTTPException(status_code=500, detail="Failed to fetch response from CosmosDB")
 
 if __name__ == "__main__":
     import uvicorn
