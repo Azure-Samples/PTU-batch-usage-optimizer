@@ -61,16 +61,19 @@ async def health_check():
 async def send_event(payload: Any = Body(...)):
     """Receives raw JSON (dict or list) and sends events to Azure Event Hub"""
 
-    # Generate an unique request ID
-    request_id = str(uuid.uuid4())
-
     try:
         # Determine if single or batch
         raw_events = payload if isinstance(payload, list) else [payload]
 
         # send each payload in its own batch
         for raw_evt in raw_events:
+            # Generate an unique request ID
+            request_id = str(uuid.uuid4())
+
+            # Prepare the event to send
             event_to_send = {"request_id": request_id, **raw_evt}
+
+            # Send the event
             await producer.send_event(event_to_send)
 
         return {"request_id": request_id,
