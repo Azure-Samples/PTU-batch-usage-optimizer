@@ -32,3 +32,21 @@ class CosmosDBClient:
         except Exception as ex:
             logger.error(f"Failed to persist to CosmosDB: {ex}")
             raise
+
+    async def get_response_by_request_id(self, request_id):
+        """
+        Fetches the OpenAI response from CosmosDB by request_id.
+        Returns the document if found, otherwise None.
+        """
+        try:
+            async with CosmosClient(self.endpoint, self.key) as client:
+                db = client.get_database_client(self.database_name)
+                container = db.get_container_client(self.container_name)
+                response = await container.read_item(item=request_id, partition_key=request_id)
+                return response
+        except Exception as ex:
+            if "Resource Not Found" in str(ex) or "NotFound" in str(ex):
+                logger.info(f"No document found in CosmosDB for request_id: {request_id}")
+                return None
+            logger.error(f"Error fetching document from CosmosDB: {ex}")
+            raise
