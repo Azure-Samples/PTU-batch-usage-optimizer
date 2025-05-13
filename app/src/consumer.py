@@ -7,6 +7,7 @@ from azure.cosmos.aio import CosmosClient
 from ..config import settings
 from app.src.azure_openai import AzureOpenAI
 from app.src.cosmos import CosmosDBClient
+from app.src.monitor import AzureMonitorClient
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +25,7 @@ class Consumer:
         )
         self.azure_openai = AzureOpenAI()
         self.cosmos_client = CosmosDBClient()
-
-    async def get_openai_utilization(self):
-        return 0.3
+        self.monitor_client = AzureMonitorClient()
 
     async def consume_event(self):
         processed_count = 0
@@ -53,7 +52,10 @@ class Consumer:
                 if not messages:
                     logger.warning("No 'messages' in event payload")
                     return
-                utilization = await self.get_openai_utilization()
+
+                # Check the PTU Deployment usage
+                utilization = await self.monitor_client.get_latest_utilization()
+
                 if utilization < settings.METRIC_THRESHOLD:
                     # Call the Azure OpenAI API
                     openai_response = await self.azure_openai.send_llm_request(aoai_payload)
