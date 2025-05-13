@@ -19,7 +19,7 @@ class AzureMonitorClient:
                     self.resource_id,
                     metric_names=[self.metric_name],
                     aggregations=[MetricAggregationType.AVERAGE],
-                    timespan=timedelta(hours=1),
+                    timespan=timedelta(minutes=1),
                     granularity=timedelta(minutes=1),
                 )
                 for metric in response.metrics:
