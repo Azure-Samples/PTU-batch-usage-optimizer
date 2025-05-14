@@ -136,7 +136,7 @@ _Send a batch of Azure OpenAI JSON payloads. Each event in the array will be que
    ],
    "detail": "2 event(s) sent successfully"
 }
-
+```
 ---
 
 ## ⚡ How It Works
