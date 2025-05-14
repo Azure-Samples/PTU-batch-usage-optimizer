@@ -1,5 +1,5 @@
 # 🚀 PTU Batch Usage Optimizer
-An open-source solution for optimizing Azure OpenAI workloads in PTU (Provisioned Throughput)[https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum] environments. This project intelligently queues and dispatches requests based on real-time PTU utilization, ensuring jobs are processed efficiently and cost-effectively when resources are available.
+An open-source solution for optimizing Azure OpenAI workloads in PTU [Provisioned Throughput](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum) environments. This project intelligently queues and dispatches requests based on real-time PTU utilization, ensuring jobs are processed efficiently and cost-effectively when resources are available.
 
 > **Note:** This project is open-source and intended as a starting point. You are encouraged to adapt and extend it to fit your specific requirements and production standards.
 
@@ -7,7 +7,7 @@ An open-source solution for optimizing Azure OpenAI workloads in PTU (Provisione
 
 ## ✨ Features
 
-- **PTU Usage Optimization**: Automatically queue and sends Azure OpenAI processes when PTU (Provisioned Throughput)[https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum] usage is below a defined threshold
+- **PTU Usage Optimization**: Automatically queue and sends Azure OpenAI processes when PTU [Provisioned Throughput](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum) usage is below a defined threshold
 - **FastAPI**: High-performance, easy-to-use Python web framework
 - **Azure Event Hub Integration**: Seamlessly dispatches events for processing
 - **CosmosDB Integration**: Reliable storage and tracking of events and job states using Azure CosmosDB
