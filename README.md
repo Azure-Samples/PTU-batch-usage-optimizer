@@ -1,6 +1,5 @@
 # 🚀 PTU Batch Usage Optimizer
-
-An open-source FastAPI REST API for optimizing the usage of PTU (Provisioned Throughput Unit) environments. This project enables users to send Azure OpenAI processes to be executed only when the PTU environment is under optimal usage conditions, maximizing efficiency and cost-effectiveness. It features native CosmosDB RBAC authentication and a flexible architecture.
+An open-source solution for optimizing Azure OpenAI workloads in PTU (Provisioned Throughput)[https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum] environments. This project intelligently queues and dispatches requests based on real-time PTU utilization, ensuring jobs are processed efficiently and cost-effectively when resources are available.
 
 > **Note:** This project is open-source and intended as a starting point. You are encouraged to adapt and extend it to fit your specific requirements and production standards.
 
@@ -8,10 +7,10 @@ An open-source FastAPI REST API for optimizing the usage of PTU (Provisioned Thr
 
 ## ✨ Features
 
-- **PTU Usage Optimization**: Automatically schedules and sends Azure OpenAI processes when PTU usage is below a defined threshold
+- **PTU Usage Optimization**: Automatically queue and sends Azure OpenAI processes when PTU (Provisioned Throughput)[https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum] usage is below a defined threshold
 - **FastAPI**: High-performance, easy-to-use Python web framework
 - **Azure Event Hub Integration**: Seamlessly dispatches events for processing
-- **CosmosDB Native RBAC**: Secure authentication using Azure Entra ID (formerly AAD)
+- **CosmosDB Integration**: Reliable storage and tracking of events and job states using Azure CosmosDB
 - **Structured Logging**: Consistent, production-grade logs
 - **Docker Support**: Ready-to-use Dockerfiles and Compose for local and cloud deployments
 - **Extensible Architecture**: Modular codebase for easy feature expansion
