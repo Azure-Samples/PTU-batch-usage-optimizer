@@ -3,7 +3,6 @@ import logging
 from azure.eventhub.aio import EventHubConsumerClient
 from azure.eventhub import EventData
 from azure.eventhub.extensions.checkpointstoreblobaio import BlobCheckpointStore
-from azure.cosmos.aio import CosmosClient
 from ..config import settings
 from app.src.azure_openai import AzureOpenAI
 from app.src.cosmos import CosmosDBClient
@@ -23,7 +22,7 @@ class Consumer:
             eventhub_name=settings.EVENTHUB_NAME,
             checkpoint_store=self.checkpoint_store
         )
-        self.azure_openai = AzureOpenAI()
+        self.azure_openai_client = AzureOpenAI()
         self.cosmos_client = CosmosDBClient()
         self.monitor_client = AzureMonitorClient()
 
@@ -58,7 +57,7 @@ class Consumer:
 
                 if utilization < settings.METRIC_THRESHOLD:
                     # Call the Azure OpenAI API
-                    openai_response = await self.azure_openai.send_llm_request(aoai_payload)
+                    openai_response = await self.azure_openai_client.send_llm_request(aoai_payload)
 
                     # Persist the OpenAI response to CosmosDB
                     await self.cosmos_client.persist_response(payload.get("request_id"), 

@@ -4,7 +4,6 @@ import uuid
 from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.responses import JSONResponse
 from app.src.producer import Producer
-from app.src.consumer import Consumer
 from app.src.cosmos import CosmosDBClient
 from app.config import settings
 from contextlib import asynccontextmanager
@@ -36,14 +35,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Initialize Producer and Consumer
+# Initialize Producer and CosmosDBClient
 try:
     producer = Producer()
-    consumer = Consumer(checkpoint_store=checkpoint_store)
     cosmos_client = CosmosDBClient()
-    logger.info("Producer, Consumer, and CosmosDBClient were initialized successfully")
+    logger.info("Producer and CosmosDBClient were initialized successfully")
 except Exception as err:
-    logger.error(f"Failed to initialize the Producer/Consumer/CosmosDBClient: {err}")
+    logger.error(f"Failed to initialize the Producer/CosmosDBClient: {err}")
     raise
 
 @app.exception_handler(Exception)
@@ -91,12 +89,6 @@ async def send_event(payload: Any = Body(...)):
     except Exception as ex:
         logger.error(f"Error sending event: {ex}")
         raise HTTPException(status_code=500, detail="Failed to send event")
-
-@app.post("/consumer", summary="Consume event from Event Hub and process")
-async def consume_event():
-    """Consumes an event from Event Hub, checks metric, calls OpenAI, persists response, and marks event as processed."""
-    processed_count = await consumer.consume_event()
-    return {"Events Processed": processed_count}
 
 @app.get("/response/{request_id}", summary="Get Azure OpenAI response by request_id")
 async def get_openai_response(request_id: str):

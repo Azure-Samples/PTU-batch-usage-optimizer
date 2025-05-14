@@ -4,11 +4,14 @@ from azure.monitor.query.aio import MetricsQueryClient
 from azure.monitor.query import MetricAggregationType
 from app.config import settings
 
+
 class AzureMonitorClient:
     def __init__(self):
         self.resource_id = settings.AZURE_OPENAI_RESOURCE_ID
         self.metric_name = "AzureOpenAIProvisionedManagedUtilizationV2"
-        self.credential = DefaultAzureCredential(managed_identity_client_id=settings.AZURE_CLIENT_ID)
+
+        # If settings.AZURE_CLIENT_ID is not set, use DefaultAzureCredential for local development
+        self.credential = DefaultAzureCredential() if settings.AZURE_CLIENT_ID is None else DefaultAzureCredential(managed_identity_client_id=settings.AZURE_CLIENT_ID)
 
     async def get_latest_utilization(self):
         if not self.resource_id:
