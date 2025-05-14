@@ -15,8 +15,6 @@ An open-source FastAPI REST API for optimizing the usage of PTU (Provisioned Thr
 - **Structured Logging**: Consistent, production-grade logs
 - **Docker Support**: Ready-to-use Dockerfiles and Compose for local and cloud deployments
 - **Extensible Architecture**: Modular codebase for easy feature expansion
-- **Comprehensive Testing**: Example tests included
-
 ---
 
 ## 🏁 Quickstart
