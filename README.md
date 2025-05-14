@@ -45,10 +45,21 @@ cp .env.example .env
 # Edit .env with your Azure Event Hub, CosmosDB, and PTU settings
 ```
 
-### 5. Run the API
+### 5. Run the API and Consumer
+You can run the API and the consumer service directly?
+
+**To run the API:**
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
+
+**To run the consumer service:**
+```bash
+python consumer_service.py
+```
+
+> **Tip:**
+> For debugging, open the project in VS Code and use the pre-configured launch options in `.vscode/launch.json` to start and debug either the API or the consumer service interactively.
 
 ---
 
@@ -58,31 +69,73 @@ uvicorn main:app --reload
 - `GET /health`  
   _Returns API health status._
 
-### Send Event
-- `POST /events`  
-  _Send a JSON event to Azure Event Hub for PTU-optimized processing._
+### Send a single Azure OpenAI Event
+- `POST /producer`  
+_Send an Azure OpenAI JSON payload. The event will be queued and processed when PTU usage is below the specified threshold._
 
 **Request Example:**
 ```json
-{
-  "data": {
-    "openai_process": {
-      "prompt": "...",
-      "parameters": { "max_tokens": 100 }
-    },
-    "ptu_condition": {
-      "max_utilization": 0.7
-    }
-  }
+[{
+    "messages":[{"role": "system", 
+               "content": "You are an echo assistant. Respond exactly with the same text the user will enter"},
+            {"role": "user", 
+             "content": "TEST-01"},
+             {"role": "assistant", "content": "TEST-01."},
+             {"role": "user", "content": "TEST-02"}],
+"temperature":1,
+"top_p": 1,
+"max_tokens":800
 }
+]
 ```
 
 **Response Example:**
 ```json
 {
-  "detail": "Event sent successfully and will be processed when PTU usage is optimal."
+    "request_ids": [
+        "23b1942-...."
+    ],
+    "detail": "1 event(s) sent successfully"
 }
 ```
+
+### Send batch Azure OpenAI events
+- `POST /producer`  
+_Send a batch of Azure OpenAI JSON payloads. Each event in the array will be queued and processed when PTU usage is below the specified threshold._
+
+**Request Example:**
+```json
+[
+   {
+      "messages": [
+         {"role": "system", "content": "You are an echo assistant."},
+         {"role": "user", "content": "TEST-01"}
+      ],
+      "temperature": 1,
+      "top_p": 1,
+      "max_tokens": 800
+   },
+   {
+      "messages": [
+         {"role": "system", "content": "You are an echo assistant."},
+         {"role": "user", "content": "TEST-02"}
+      ],
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "max_tokens": 500
+   }
+]
+```
+
+**Response Example:**
+```json
+{
+   "request_ids": [
+      "23b1942-....",
+      "a8c1d2e-...."
+   ],
+   "detail": "2 event(s) sent successfully"
+}
 
 ---
 
