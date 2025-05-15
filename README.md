@@ -135,8 +135,7 @@ _Send a batch of Azure OpenAI JSON payloads. Each event in the array will be que
 }
 ```
 ---
-
-## Databricks Integration
+## ![Azure Databricks Logo](images/icon-service-Azure-Databricks.svg) Databricks Integration
 
 You can automate the **Consumer process** by creating a Databricks job that runs the consumer service notebook as part of your Workflows.
 
