@@ -136,6 +136,37 @@ _Send a batch of Azure OpenAI JSON payloads. Each event in the array will be que
 ```
 ---
 
+## Databricks Integration
+
+You can automate the **Consumer process** by creating a Databricks job that runs the consumer service notebook as part of your Workflows.
+
+### Creating a Databricks Job for the Consumer
+
+1. **Clone the Repository into Databricks**  
+   Clone the PTU Batch Usage Optimizer repository into your Databricks workspace. 
+   This ensures the consumer service notebook is available at `databricks/Consumer Service` for use in your Databricks jobs.
+
+2. **Create a Databricks Job**  
+   - In the Databricks UI, go to **Workflows > Jobs** and click **Create Job**.
+   - Add a task to run a notebook:
+     - **Type:** Notebook
+     - **Path:** `Consumer Service notebook`
+
+3. **Configure Secrets with Azure Key Vault**  
+   - Add all required environment variables (such as CosmosDB, Event Hub, and PTU settings) to your Azure Key Vault.
+   - Integrate Azure Key Vault with Databricks so these values are available as Databricks secrets.
+   - In your notebook, access these secrets using Databricks utilities (e.g., `dbutils.secrets.get`).
+
+4. **Schedule or Trigger the Job**  
+   - Set a schedule for periodic execution, or
+   - Trigger the job on demand or as part of a workflow.
+
+#### References
+
+- [Databricks Jobs Documentation](https://docs.databricks.com/en/jobs/index.html)
+- [Databricks Secrets](https://docs.databricks.com/en/security/secrets/index.html)
+- [Azure Key Vault Integration](https://learn.microsoft.com/en-us/azure/databricks/security/secrets/secret-scopes)
+
 ## ⚡ How It Works
 
 - The API receives requests to process Azure OpenAI jobs.
