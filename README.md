@@ -17,7 +17,7 @@ The PTU Batch Usage Optimizer is designed with modular, cloud-native components 
 4. The Consumer checks PTU usage via Azure Monitor 
 5. Then dispatches jobs to Azure OpenAI Service when utilization is below the threshold.
 6. CosmosDB stores job states and results for tracking, auditing and store responses to be consumed later.
-7. The `response` API route reads the processed results.
+7. The `response` API route reads the processed results and return to the user.
 
 This architecture ensures jobs are processed efficiently, only when PTU resources are available, and all states are reliably tracked.
 ---
