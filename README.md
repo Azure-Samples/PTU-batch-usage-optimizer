@@ -20,7 +20,9 @@ The PTU Batch Usage Optimizer is designed with modular, cloud-native components 
 7. The `response` API route reads the processed results and return to the user.
 
 This architecture ensures jobs are processed efficiently, only when PTU resources are available, and all states are reliably tracked.
+
 ---
+
 
 ## ✨ Features
 
