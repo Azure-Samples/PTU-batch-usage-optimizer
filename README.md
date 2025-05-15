@@ -5,17 +5,6 @@ An open-source solution for optimizing Azure OpenAI workloads in PTU [Provisione
 
 ---
 
-## ✨ Features
-
-- **PTU Usage Optimization**: Automatically queue and sends Azure OpenAI processes when PTU [Provisioned Throughput](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum) usage is below a defined threshold
-- **FastAPI**: High-performance, easy-to-use Python web framework
-- **Azure Event Hub Integration**: Seamlessly dispatches events for processing
-- **CosmosDB Integration**: Reliable storage and tracking of events and job states using Azure CosmosDB
-- **Structured Logging**: Consistent, production-grade logs
-- **Docker Support**: Ready-to-use Dockerfiles and Compose for local and cloud deployments
-- **Extensible Architecture**: Modular codebase for easy feature expansion
----
-
 ## 🏗️ Architecture Overview
 
 The PTU Batch Usage Optimizer is designed with modular, cloud-native components for scalability and reliability:
@@ -31,6 +20,18 @@ The PTU Batch Usage Optimizer is designed with modular, cloud-native components 
 7. The `response` API route reads the processed results.
 
 This architecture ensures jobs are processed efficiently, only when PTU resources are available, and all states are reliably tracked.
+---
+
+## ✨ Features
+
+- **PTU Usage Optimization**: Automatically queue and sends Azure OpenAI processes when PTU [Provisioned Throughput](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/provisioned-throughput?tabs=global-ptum) usage is below a defined threshold
+- **FastAPI**: High-performance, easy-to-use Python web framework
+- **Azure Event Hub Integration**: Seamlessly dispatches events for processing
+- **CosmosDB Integration**: Reliable storage and tracking of events and job states using Azure CosmosDB
+- **Structured Logging**: Consistent, production-grade logs
+- **Docker Support**: Ready-to-use Dockerfiles and Compose for local and cloud deployments
+- **Extensible Architecture**: Modular codebase for easy feature expansion
+---
 
 ## 🏁 Quickstart
 
