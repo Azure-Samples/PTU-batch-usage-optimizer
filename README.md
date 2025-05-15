@@ -16,6 +16,22 @@ An open-source solution for optimizing Azure OpenAI workloads in PTU [Provisione
 - **Extensible Architecture**: Modular codebase for easy feature expansion
 ---
 
+## 🏗️ Architecture Overview
+
+The PTU Batch Usage Optimizer is designed with modular, cloud-native components for scalability and reliability:
+
+![PTU Batch Usage Optimizer Architecture](images/ptu-architecture-overview.png)
+
+1. The `producer` API route receives a request.
+2. The request is enqued in Azure Event Hub.
+3. The Consumer Service listens to Event Hub.
+4. The Consumer checks PTU usage via Azure Monitor 
+5. Then dispatches jobs to Azure OpenAI Service when utilization is below the threshold.
+6. CosmosDB stores job states and results for tracking, auditing and store responses to be consumed later.
+7. The `response` API route reads the processed results.
+
+This architecture ensures jobs are processed efficiently, only when PTU resources are available, and all states are reliably tracked.
+
 ## 🏁 Quickstart
 
 ### 1. Clone the Repository
