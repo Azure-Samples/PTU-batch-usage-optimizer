@@ -3,6 +3,21 @@ An open-source solution for optimizing Azure OpenAI workloads in PTU [Provisione
 
 > **Note:** This project is open-source and intended as a starting point. You are encouraged to adapt and extend it to fit your specific requirements and production standards.
 
+## 📖 Summary
+
+- [🏗️ Architecture Overview](#️-architecture-overview)
+- [✨ Features](#-features)
+- [🏁 Quickstart](#-quickstart)
+- [🧑‍💻 API Endpoints](#-api-endpoints)
+- [![Azure Databricks Logo](images/icon-service-Azure-Databricks.svg) Databricks Integration](#azure-databricks-logo-databricks-integration)
+- [⚡ How It Works](#-how-it-works)
+- [🔐 CosmosDB Entra ID (RBAC) Permissions](#-cosmosdb-entra-id-rbac-permissions)
+- [⚙️ Environment Variables](#️-environment-variables)
+- [🐳 Docker & Deployment](#-docker--deployment)
+- [📁 Project Structure](#-project-structure)
+- [📚 Resources](#-resources)
+- [📝 License](#-license)
+
 ---
 
 ## 🏗️ Architecture Overview
