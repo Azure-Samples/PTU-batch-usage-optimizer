@@ -169,6 +169,53 @@ _Send a batch of Azure OpenAI JSON payloads. Each event in the array will be que
 }
 ```
 ---
+
+## 🐳 Docker & Deployment
+
+- **Build API Docker Image Locally:**
+  ```bash
+  ./util/build-docker-image.sh api
+  ```
+- **Build Consumer Docker Image Locally:**
+  ```bash
+  ./util/build-docker-image.sh consumer
+  ```
+- **Push API Docker Image to ACR:**
+  ```bash
+  ./util/push-docker-image.sh api
+  ```
+- **Push Consumer Docker Image to ACR:**
+  ```bash
+  ./util/push-docker-image.sh consumer
+  ```
+- **Run with Docker Compose:**
+  ```bash
+  docker-compose up --build
+  ```
+
+### 🚀 Build & Push to Azure Container Registry (ACR) using provided scripts
+
+1. **Configure your variables:**
+   - Edit `util/variables.sh` with your ACR name, image names, and tag.
+2. **Login to Azure:**
+   ```bash
+   az login
+   ```
+3. **Build the Docker images:**
+   ```bash
+   ./util/build-docker-image.sh api
+   ./util/build-docker-image.sh consumer
+   ```
+4. **Push the images to ACR:**
+   ```bash
+   ./util/push-docker-image.sh api
+   ./util/push-docker-image.sh consumer
+   ```
+
+These scripts will automatically tag and push your images to the Azure Container Registry as configured in your `variables.sh` file.
+
+---
+
 ## ![Azure Databricks Logo](images/icon-service-Azure-Databricks.svg) Databricks Integration
 
 You can automate the **Consumer process** by creating a Databricks job that runs the consumer service notebook as part of your Workflows.
@@ -248,52 +295,6 @@ This project uses [CosmosDB native RBAC](https://aka.ms/cosmos-native-rbac) for 
 | `AZURE_TENANT_ID`         | Azure Entra ID tenant ID                    |
 | `AZURE_CLIENT_SECRET`     | Azure Entra ID client secret                |
 | `PTU_MAX_UTILIZATION`     | Max allowed PTU utilization (e.g., 0.7)     |
-
----
-
-## 🐳 Docker & Deployment
-
-- **Build API Docker Image Locally:**
-  ```bash
-  ./util/build-docker-image.sh api
-  ```
-- **Build Consumer Docker Image Locally:**
-  ```bash
-  ./util/build-docker-image.sh consumer
-  ```
-- **Push API Docker Image to ACR:**
-  ```bash
-  ./util/push-docker-image.sh api
-  ```
-- **Push Consumer Docker Image to ACR:**
-  ```bash
-  ./util/push-docker-image.sh consumer
-  ```
-- **Run with Docker Compose:**
-  ```bash
-  docker-compose up --build
-  ```
-
-### 🚀 Build & Push to Azure Container Registry (ACR) using provided scripts
-
-1. **Configure your variables:**
-   - Edit `util/variables.sh` with your ACR name, image names, and tag.
-2. **Login to Azure:**
-   ```bash
-   az login
-   ```
-3. **Build the Docker images:**
-   ```bash
-   ./util/build-docker-image.sh api
-   ./util/build-docker-image.sh consumer
-   ```
-4. **Push the images to ACR:**
-   ```bash
-   ./util/push-docker-image.sh api
-   ./util/push-docker-image.sh consumer
-   ```
-
-These scripts will automatically tag and push your images to the Azure Container Registry as configured in your `variables.sh` file.
 
 ---
 
