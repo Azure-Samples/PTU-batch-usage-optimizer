@@ -39,7 +39,7 @@ This architecture ensures jobs are processed efficiently, only when PTU resource
 
 ### 1. Clone the Repository
 ```bash
-git clone <repo-url>
+git clone https://github.com/Azure-Samples/PTU-batch-usage-optimizer.git
 cd PTU-batch-usage-optimizer
 ```
 
@@ -61,10 +61,10 @@ cp .env.example .env
 # Edit .env with your Azure Event Hub, CosmosDB, and PTU settings
 ```
 
-### 5. Run the API and Consumer
+### 5. Run the API (producer) and Consumer
 You can run the API and the consumer service directly?
 
-**To run the API:**
+**To run the API (producer):**
 ```bash
 python main.py
 ```
