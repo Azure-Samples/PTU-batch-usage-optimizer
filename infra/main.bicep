@@ -28,10 +28,6 @@ param tenantId string
 param clientId string
 param clientSecret string
 
-// Additional parameters for existing resources
-param systemTopicName string = 'storptubacthoptckpnt-f4ffb119-8b28-4a19-8869-a1468942bfee'
-param accountsExternalId string = '/subscriptions/2168a4ef-0538-435e-9ae6-beb6183f2769/resourceGroups/RG-OPENAI/providers/Microsoft.CognitiveServices/accounts/aoailab08'
-
 resource managedEnvironment_consumer 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvConsumerName
   location: location
@@ -481,50 +477,6 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
         cooldownPeriod: 300
         pollingInterval: 30
       }
-    }
-  }
-}
-
-resource systemTopics_storptubacthoptckpnt_f4ffb119_8b28_4a19_8869_a1468942bfee_name_resource 'Microsoft.EventGrid/systemTopics@2025-02-15' = {
-  name: systemTopicName
-  location: location
-  properties: {
-    source: storageAccounts_storptubacthoptckpnt_name_resource.id
-    topicType: 'microsoft.storage.storageaccounts'
-  }
-}
-
-resource systemTopics_storptubacthoptckpnt_f4ffb119_8b28_4a19_8869_a1468942bfee_name_StorageAntimalwareSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15' = {
-  parent: systemTopics_storptubacthoptckpnt_f4ffb119_8b28_4a19_8869_a1468942bfee_name_resource
-  name: 'StorageAntimalwareSubscription'
-  properties: {
-    destination: {
-      properties: {
-        maxEventsPerBatch: 1
-        preferredBatchSizeInKilobytes: 64
-        azureActiveDirectoryTenantId: '33e01921-4d64-4f8c-a055-5bdaffd5e33d'
-        azureActiveDirectoryApplicationIdOrUri: 'f1f8da5f-609a-401d-85b2-d498116b7265'
-      }
-      endpointType: 'WebHook'
-    }
-    filter: {
-      includedEventTypes: [
-        'Microsoft.Storage.BlobCreated'
-      ]
-      advancedFilters: [
-        {
-          values: [
-            'BlockBlob'
-          ]
-          operatorType: 'StringContains'
-          key: 'data.blobType'
-        }
-      ]
-    }
-    eventDeliverySchema: 'EventGridSchema'
-    retryPolicy: {
-      maxDeliveryAttempts: 30
-      eventTimeToLiveInMinutes: 1440
     }
   }
 }
