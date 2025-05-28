@@ -1,0 +1,692 @@
+param location string
+param eventHubNamespaceName string
+param eventHubName string
+param eventHubAuthRuleName string
+param eventHubNamespaceAuthRulePTUSendName string
+param eventHubNamespaceAuthRuleRootManageName string
+param eventHubConsumerGroupName string
+param storageAccountName string
+param storageContainerName string
+param managedEnvConsumerName string
+param managedEnvProducerName string
+param containerAppConsumerName string
+param containerAppProducerName string
+param consumerProfile string
+param acrName string
+param acrServer string
+param consumerImageTag string
+param producerImageTag string
+param cosmosDbEndpoint string
+param cosmosDbKey string
+param cosmosDbDatabase string
+param cosmosDbContainer string
+param azureOpenAiEndpoint string
+param azureOpenAiApiKey string
+param azureOpenAiDeploymentName string
+param azureOpenAiResourceId string
+param tenantId string
+param clientId string
+param clientSecret string
+
+// Additional parameters for existing resources
+param systemTopicName string = 'storptubacthoptckpnt-f4ffb119-8b28-4a19-8869-a1468942bfee'
+param accountsExternalId string = '/subscriptions/2168a4ef-0538-435e-9ae6-beb6183f2769/resourceGroups/RG-OPENAI/providers/Microsoft.CognitiveServices/accounts/aoailab08'
+
+resource managedEnvironment_consumer 'Microsoft.App/managedEnvironments@2025-01-01' = {
+  name: managedEnvConsumerName
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    appLogsConfiguration: {}
+    zoneRedundant: false
+    kedaConfiguration: {}
+    daprConfiguration: {}
+    customDomainConfiguration: {}
+    workloadProfiles: [
+      {
+        workloadProfileType: 'Consumption'
+        name: 'Consumption'
+      }
+      {
+        workloadProfileType: 'D4'
+        name: consumerProfile
+        minimumCount: 1
+        maximumCount: 1
+      }
+    ]
+    peerAuthentication: {
+      mtls: {
+        enabled: false
+      }
+    }
+    peerTrafficConfiguration: {
+      encryption: {
+        enabled: false
+      }
+    }
+  }
+}
+
+resource managedEnvironment_producer 'Microsoft.App/managedEnvironments@2025-01-01' = {
+  name: managedEnvProducerName
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    appLogsConfiguration: {}
+    zoneRedundant: false
+    kedaConfiguration: {}
+    daprConfiguration: {}
+    customDomainConfiguration: {}
+    workloadProfiles: [
+      {
+        workloadProfileType: 'Consumption'
+        name: 'Consumption'
+      }
+    ]
+    peerAuthentication: {
+      mtls: {
+        enabled: false
+      }
+    }
+    peerTrafficConfiguration: {
+      encryption: {
+        enabled: false
+      }
+    }
+  }
+}
+
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = {
+  name: eventHubNamespaceName
+  location: location
+  tags: {
+    SecurityControl: 'Ignore'
+  }
+  sku: {
+    name: 'Standard'
+    tier: 'Standard'
+    capacity: 1
+  }
+  properties: {
+    geoDataReplication: {
+      maxReplicationLagDurationInSeconds: 0
+      locations: [
+        {
+          locationName: location
+          roleType: 'Primary'
+        }
+      ]
+    }
+    minimumTlsVersion: '1.2'
+    publicNetworkAccess: 'Enabled'
+    disableLocalAuth: false
+    zoneRedundant: true
+    isAutoInflateEnabled: false
+    maximumThroughputUnits: 0
+    kafkaEnabled: true
+  }
+}
+
+resource storageAccounts_storptubacthoptckpnt_name_resource 'Microsoft.Storage/storageAccounts@2024-01-01' = {
+  name: storageAccountName
+  location: location
+  tags: {
+    SecurityControl: 'Ignore'
+  }
+  sku: {
+    name: 'Standard_LRS'
+    tier: 'Standard'
+  }
+  kind: 'StorageV2'
+  properties: {
+    dnsEndpointType: 'Standard'
+    defaultToOAuthAuthentication: false
+    publicNetworkAccess: 'Enabled'
+    allowCrossTenantReplication: false
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+    allowSharedKeyAccess: true
+    largeFileSharesState: 'Enabled'
+    networkAcls: {
+      resourceAccessRules: [
+        {
+          tenantId: tenantId
+          resourceId: '/subscriptions/2168a4ef-0538-435e-9ae6-beb6183f2769/providers/Microsoft.Security/datascanners/storageDataScanner'
+        }
+      ]
+      bypass: 'AzureServices'
+      virtualNetworkRules: []
+      ipRules: []
+      defaultAction: 'Allow'
+    }
+    supportsHttpsTrafficOnly: true
+    encryption: {
+      requireInfrastructureEncryption: false
+      services: {
+        file: {
+          keyType: 'Account'
+          enabled: true
+        }
+        blob: {
+          keyType: 'Account'
+          enabled: true
+        }
+      }
+      keySource: 'Microsoft.Storage'
+    }
+    accessTier: 'Hot'
+  }
+}
+
+resource registries_acr_name_resource 'Microsoft.ContainerRegistry/registries@2025-03-01-preview' = {
+  name: acrName
+  location: location
+  tags: {
+    SecurityControl: 'Ignore'
+  }
+  sku: {
+    name: 'Standard'
+    tier: 'Standard'
+  }
+  properties: {
+    adminUserEnabled: true
+    policies: {
+      quarantinePolicy: {
+        status: 'disabled'
+      }
+      trustPolicy: {
+        type: 'Notary'
+        status: 'disabled'
+      }
+      retentionPolicy: {
+        days: 7
+        status: 'disabled'
+      }
+      exportPolicy: {
+        status: 'enabled'
+      }
+      azureADAuthenticationAsArmPolicy: {
+        status: 'enabled'
+      }
+      softDeletePolicy: {
+        retentionDays: 7
+        status: 'disabled'
+      }
+    }
+    encryption: {
+      status: 'disabled'
+    }
+    dataEndpointEnabled: false
+    publicNetworkAccess: 'Enabled'
+    networkRuleBypassOptions: 'AzureServices'
+    zoneRedundancy: 'Disabled'
+    anonymousPullEnabled: false
+    metadataSearch: 'Disabled'
+    roleAssignmentMode: 'LegacyRegistryPermissions'
+    autoGeneratedDomainNameLabelScope: 'Unsecure'
+  }
+}
+
+resource registries_acr_name_repositories_admin 'Microsoft.ContainerRegistry/registries/scopeMaps@2025-03-01-preview' = {
+  parent: registries_acr_name_resource
+  name: '_repositories_admin'
+  properties: {
+    description: 'Can perform all read, write and delete operations on the registry'
+    actions: [
+      'repositories/*/metadata/read'
+      'repositories/*/metadata/write'
+      'repositories/*/content/read'
+      'repositories/*/content/write'
+      'repositories/*/content/delete'
+    ]
+  }
+}
+
+resource registries_acr_name_repositories_pull 'Microsoft.ContainerRegistry/registries/scopeMaps@2025-03-01-preview' = {
+  parent: registries_acr_name_resource
+  name: '_repositories_pull'
+  properties: {
+    description: 'Can pull any repository of the registry'
+    actions: [
+      'repositories/*/content/read'
+    ]
+  }
+}
+
+resource registries_acr_name_repositories_pull_metadata_read 'Microsoft.ContainerRegistry/registries/scopeMaps@2025-03-01-preview' = {
+  parent: registries_acr_name_resource
+  name: '_repositories_pull_metadata_read'
+  properties: {
+    description: 'Can perform all read operations on the registry'
+    actions: [
+      'repositories/*/content/read'
+      'repositories/*/metadata/read'
+    ]
+  }
+}
+
+resource registries_acr_name_repositories_push 'Microsoft.ContainerRegistry/registries/scopeMaps@2025-03-01-preview' = {
+  parent: registries_acr_name_resource
+  name: '_repositories_push'
+  properties: {
+    description: 'Can push to any repository of the registry'
+    actions: [
+      'repositories/*/content/read'
+      'repositories/*/content/write'
+    ]
+  }
+}
+
+resource registries_acr_name_repositories_push_metadata_write 'Microsoft.ContainerRegistry/registries/scopeMaps@2025-03-01-preview' = {
+  parent: registries_acr_name_resource
+  name: '_repositories_push_metadata_write'
+  properties: {
+    description: 'Can perform all read and write operations on the registry'
+    actions: [
+      'repositories/*/metadata/read'
+      'repositories/*/metadata/write'
+      'repositories/*/content/read'
+      'repositories/*/content/write'
+    ]
+  }
+}
+
+resource containerApp_consumer 'Microsoft.App/containerapps@2025-01-01' = {
+  name: containerAppConsumerName
+  location: location
+  identity: {
+    type: 'None'
+  }
+  properties: {
+    managedEnvironmentId: managedEnvironment_consumer.id
+    environmentId: managedEnvironment_consumer.id
+    workloadProfileName: consumerProfile
+    configuration: {
+      activeRevisionsMode: 'Single'
+      maxInactiveRevisions: 100
+      identitySettings: []
+    }
+    template: {
+      containers: [
+        {
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          name: containerAppConsumerName
+          env: [
+            {
+              name: 'EVENTHUB_NAME'
+              value: eventHubName
+            }
+            {
+              name: 'STORAGE_ACCOUNT_CHECKPOINT_STORE_CONTAINER'
+              value: storageContainerName
+            }
+            {
+              name: 'COSMOSDB_ENDPOINT'
+              value: cosmosDbEndpoint
+            }
+            {
+              name: 'COSMOSDB_KEY'
+              value: cosmosDbKey
+            }
+            {
+              name: 'COSMOSDB_DATABASE'
+              value: cosmosDbDatabase
+            }
+            {
+              name: 'COSMOSDB_CONTAINER'
+              value: cosmosDbContainer
+            }
+            {
+              name: 'AZURE_OPENAI_ENDPOINT'
+              value: azureOpenAiEndpoint
+            }
+            {
+              name: 'AZURE_OPENAI_API_KEY'
+              value: azureOpenAiApiKey
+            }
+            {
+              name: 'AZURE_OPENAI_PTU_DEPLOYMENT_NAME'
+              value: azureOpenAiDeploymentName
+            }
+            {
+              name: 'AZURE_OPENAI_RESOURCE_ID'
+              value: azureOpenAiResourceId
+            }
+            {
+              name: 'AZURE_TENANT_ID'
+              value: tenantId
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: clientId
+            }
+            {
+              name: 'AZURE_CLIENT_SECRET'
+              value: clientSecret
+            }
+          ]
+          resources: {
+            cpu: 2
+            memory: '8Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 1
+        cooldownPeriod: 300
+        pollingInterval: 30
+      }
+    }
+  }
+}
+
+resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
+  name: containerAppProducerName
+  location: location
+  identity: {
+    type: 'None'
+  }
+  properties: {
+    managedEnvironmentId: managedEnvironment_producer.id
+    environmentId: managedEnvironment_producer.id
+    workloadProfileName: 'Consumption'
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: true
+        targetPort: 8082
+        exposedPort: 0
+        transport: 'Auto'
+        traffic: [
+          {
+            weight: 100
+            latestRevision: true
+          }
+        ]
+        allowInsecure: false
+        stickySessions: {
+          affinity: 'none'
+        }
+      }
+      registries: [
+        {
+          server: acrServer
+          identity: 'system-environment'
+        }
+      ]
+      maxInactiveRevisions: 100
+      identitySettings: []
+    }
+    template: {
+      containers: [
+        {
+          image: '${acrServer}/ptu_usage_optimizer_api:${producerImageTag}'
+          name: containerAppProducerName
+          env: [
+            {
+              name: 'EVENTHUB_NAME'
+              value: eventHubName
+            }
+            {
+              name: 'STORAGE_ACCOUNT_CHECKPOINT_STORE_CONTAINER'
+              value: storageContainerName
+            }
+            {
+              name: 'COSMOSDB_ENDPOINT'
+              value: cosmosDbEndpoint
+            }
+            {
+              name: 'COSMOSDB_KEY'
+              value: cosmosDbKey
+            }
+            {
+              name: 'COSMOSDB_DATABASE'
+              value: cosmosDbDatabase
+            }
+            {
+              name: 'COSMOSDB_CONTAINER'
+              value: cosmosDbContainer
+            }
+            {
+              name: 'AZURE_OPENAI_ENDPOINT'
+              value: azureOpenAiEndpoint
+            }
+            {
+              name: 'AZURE_OPENAI_API_KEY'
+              value: azureOpenAiApiKey
+            }
+            {
+              name: 'AZURE_OPENAI_PTU_DEPLOYMENT_NAME'
+              value: azureOpenAiDeploymentName
+            }
+            {
+              name: 'AZURE_OPENAI_RESOURCE_ID'
+              value: azureOpenAiResourceId
+            }
+          ]
+          resources: {
+            cpu: json('0.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 0
+        maxReplicas: 10
+        cooldownPeriod: 300
+        pollingInterval: 30
+      }
+    }
+  }
+}
+
+resource systemTopics_storptubacthoptckpnt_f4ffb119_8b28_4a19_8869_a1468942bfee_name_resource 'Microsoft.EventGrid/systemTopics@2025-02-15' = {
+  name: systemTopicName
+  location: location
+  properties: {
+    source: storageAccounts_storptubacthoptckpnt_name_resource.id
+    topicType: 'microsoft.storage.storageaccounts'
+  }
+}
+
+resource systemTopics_storptubacthoptckpnt_f4ffb119_8b28_4a19_8869_a1468942bfee_name_StorageAntimalwareSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15' = {
+  parent: systemTopics_storptubacthoptckpnt_f4ffb119_8b28_4a19_8869_a1468942bfee_name_resource
+  name: 'StorageAntimalwareSubscription'
+  properties: {
+    destination: {
+      properties: {
+        maxEventsPerBatch: 1
+        preferredBatchSizeInKilobytes: 64
+        azureActiveDirectoryTenantId: '33e01921-4d64-4f8c-a055-5bdaffd5e33d'
+        azureActiveDirectoryApplicationIdOrUri: 'f1f8da5f-609a-401d-85b2-d498116b7265'
+      }
+      endpointType: 'WebHook'
+    }
+    filter: {
+      includedEventTypes: [
+        'Microsoft.Storage.BlobCreated'
+      ]
+      advancedFilters: [
+        {
+          values: [
+            'BlockBlob'
+          ]
+          operatorType: 'StringContains'
+          key: 'data.blobType'
+        }
+      ]
+    }
+    eventDeliverySchema: 'EventGridSchema'
+    retryPolicy: {
+      maxDeliveryAttempts: 30
+      eventTimeToLiveInMinutes: 1440
+    }
+  }
+}
+
+resource namespaces_batchptulab01_name_PTU_Batch_Send 'Microsoft.EventHub/namespaces/authorizationrules@2024-05-01-preview' = {
+  parent: eventHubNamespace
+  name: split(eventHubNamespaceAuthRulePTUSendName, '/')[1]
+  location: location
+  properties: {
+    rights: [
+      'Manage'
+      'Listen'
+      'Send'
+    ]
+  }
+}
+
+resource namespaces_batchptulab01_name_RootManageSharedAccessKey 'Microsoft.EventHub/namespaces/authorizationrules@2024-05-01-preview' = {
+  parent: eventHubNamespace
+  name: split(eventHubNamespaceAuthRuleRootManageName, '/')[1]
+  location: location
+  properties: {
+    rights: [
+      'Listen'
+      'Manage'
+      'Send'
+    ]
+  }
+}
+
+resource namespaces_batchptulab01_name_ptu_batch 'Microsoft.EventHub/namespaces/eventhubs@2024-05-01-preview' = {
+  parent: eventHubNamespace
+  name: eventHubName
+  location: location
+  properties: {
+    messageTimestampDescription: {
+      timestampType: 'LogAppend'
+    }
+    retentionDescription: {
+      cleanupPolicy: 'Delete'
+      retentionTimeInHours: 24
+    }
+    messageRetentionInDays: 1
+    partitionCount: 1
+    status: 'Active'
+  }
+}
+
+resource namespaces_batchptulab01_name_default 'Microsoft.EventHub/namespaces/networkrulesets@2024-05-01-preview' = {
+  parent: eventHubNamespace
+  name: 'default'
+  location: location
+  properties: {
+    publicNetworkAccess: 'Enabled'
+    defaultAction: 'Allow'
+    virtualNetworkRules: []
+    ipRules: []
+    trustedServiceAccessEnabled: false
+  }
+}
+
+resource storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01' = {
+  parent: storageAccounts_storptubacthoptckpnt_name_resource
+  name: 'default'
+  sku: {
+    name: 'Standard_LRS'
+    tier: 'Standard'
+  }
+  properties: {
+    containerDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
+    cors: {
+      corsRules: []
+    }
+    deleteRetentionPolicy: {
+      allowPermanentDelete: false
+      enabled: true
+      days: 7
+    }
+  }
+}
+
+resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/storageAccounts/fileServices@2024-01-01' = {
+  parent: storageAccounts_storptubacthoptckpnt_name_resource
+  name: 'default'
+  sku: {
+    name: 'Standard_LRS'
+    tier: 'Standard'
+  }
+  properties: {
+    protocolSettings: {
+      smb: {}
+    }
+    cors: {
+      corsRules: []
+    }
+    shareDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
+  }
+}
+
+resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/storageAccounts/queueServices@2024-01-01' = {
+  parent: storageAccounts_storptubacthoptckpnt_name_resource
+  name: 'default'
+  properties: {
+    cors: {
+      corsRules: []
+    }
+  }
+}
+
+resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/storageAccounts/tableServices@2024-01-01' = {
+  parent: storageAccounts_storptubacthoptckpnt_name_resource
+  name: 'default'
+  properties: {
+    cors: {
+      corsRules: []
+    }
+  }
+}
+
+resource namespaces_batchptulab01_name_ptu_batch_ptu_batch_send_listen 'Microsoft.EventHub/namespaces/eventhubs/authorizationrules@2024-05-01-preview' = {
+  parent: namespaces_batchptulab01_name_ptu_batch
+  name: eventHubAuthRuleName
+  location: location
+  properties: {
+    rights: [
+      'Listen'
+      'Send'
+    ]
+  }
+  dependsOn: [
+    eventHubNamespace
+  ]
+}
+
+resource namespaces_batchptulab01_name_ptu_batch_Default 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2024-05-01-preview' = {
+  parent: namespaces_batchptulab01_name_ptu_batch
+  name: eventHubConsumerGroupName
+  location: location
+  properties: {}
+  dependsOn: [
+    eventHubNamespace
+  ]
+}
+
+resource storageAccounts_storptubacthoptckpnt_name_default_ptu_batch_checkpoint 'Microsoft.Storage/storageAccounts/blobServices/containers@2024-01-01' = {
+  parent: storageAccounts_storptubacthoptckpnt_name_default
+  name: 'ptu-batch-checkpoint'
+  properties: {
+    immutableStorageWithVersioning: {
+      enabled: false
+    }
+    defaultEncryptionScope: '$account-encryption-key'
+    denyEncryptionScopeOverride: false
+    publicAccess: 'None'
+  }
+  dependsOn: [
+    storageAccounts_storptubacthoptckpnt_name_resource
+  ]
+}

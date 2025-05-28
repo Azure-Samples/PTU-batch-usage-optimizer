@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus2"
+    },
+    "eventHubNamespaceName": {
+      "value": "batchptulab02"
+    },
+    "eventHubName": {
+      "value": "ptu-batch"
+    },
+    "eventHubAuthRuleName": {
+      "value": "ptu-batch-send-listen"
+    },
+    "eventHubNamespaceAuthRulePTUSendName": {
+      "value": "batchptulab02/PTU-Batch-Send"
+    },
+    "eventHubNamespaceAuthRuleRootManageName": {
+      "value": "batchptulab02/RootManageSharedAccessKey"
+    },
+    "eventHubConsumerGroupName": {
+      "value": "$Default"
+    },
+    "storageAccountName": {
+      "value": "storptubacthoptckpnt02"
+    },
+    "storageContainerName": {
+      "value": "ptu-batch-checkpoint02"
+    },
+    "managedEnvConsumerName": {
+      "value": "managedEnvironment-consumer-lab-02"
+    },
+    "managedEnvProducerName": {
+      "value": "managedEnvironment-producer-lab-02"
+    },
+    "containerAppConsumerName": {
+      "value": "consumer-lab-02"
+    },
+    "containerAppProducerName": {
+      "value": "producer-lab-02"
+    },
+    "consumerProfile": {
+      "value": "consumer-lab-02"
+    },
+    "acrName": {
+      "value": "aifoundry02acr"
+    },
+    "acrServer": {
+      "value": "aifoundry02acr.azurecr.io"
+    },
+    "consumerImageTag": {
+      "value": "v1"
+    },
+    "producerImageTag": {
+      "value": "v1"
+    },
+    "cosmosDbEndpoint": {
+      "value": "YOUR_COSMOSDB_ENDPOINT"
+    },
+    "cosmosDbKey": {
+      "value": "YOUR_COSMOSDB_KEY"
+    },
+    "cosmosDbDatabase": {
+      "value": "db_ptu_batch_optimizer"
+    },
+    "cosmosDbContainer": {
+      "value": "aoai_process"
+    },
+    "azureOpenAiEndpoint": {
+      "value": "YOUR_AZURE_OPENAI_ENDPOINT"
+    },
+    "azureOpenAiApiKey": {
+      "value": "YOUR_AZURE_OPENAI_API_KEY"
+    },
+    "azureOpenAiDeploymentName": {
+      "value": "gpt-4o-global"
+    },
+    "azureOpenAiResourceId": {
+      "value": "YOUR_AZURE_OPENAI_RESOURCE_ID"
+    },
+    "tenantId": {
+      "value": "YOUR_TENANT_ID"
+    },
+    "clientId": {
+      "value": "YOUR_CLIENT_ID"
+    },
+    "clientSecret": {
+      "value": "YOUR_CLIENT_SECRET"
+    }
+  }
+}
