@@ -6,7 +6,7 @@
       "value": "eastus2"
     },
     "eventHubNamespaceName": {
-      "value": "batchptulab04"
+      "value": "batchptulab93"
     },
     "eventHubName": {
       "value": "ptu-batch"
@@ -15,46 +15,43 @@
       "value": "ptu-batch-send-listen"
     },
     "eventHubNamespaceAuthRulePTUSendName": {
-      "value": "batchptulab04/PTU-Batch-Send"
+      "value": "batchptulab93/PTU-Batch-Send"
     },
     "eventHubNamespaceAuthRuleRootManageName": {
-      "value": "batchptulab04/RootManageSharedAccessKey"
+      "value": "batchptulab93/RootManageSharedAccessKey"
     },
     "eventHubConsumerGroupName": {
       "value": "$Default"
     },
     "storageAccountName": {
-      "value": "storptubacthoptckpnt04"
+      "value": "storptubacthoptckpnt93"
     },
     "storageContainerName": {
-      "value": "ptu-batch-checkpoint04"
+      "value": "ptu-batch-checkpoint93"
     },
     "managedEnvConsumerName": {
-      "value": "managedEnvironment-consumer-lab-04"
+      "value": "managedEnvironment-consumer-lab-93"
     },
     "managedEnvProducerName": {
-      "value": "managedEnvironment-producer-lab-04"
+      "value": "managedEnvironment-producer-lab-93"
     },
     "containerAppConsumerName": {
-      "value": "consumer-lab-04"
+      "value": "consumer-lab-93"
     },
     "containerAppProducerName": {
-      "value": "producer-lab-04"
+      "value": "producer-lab-93"
     },
     "consumerProfile": {
-      "value": "consumer-lab-04"
+      "value": "consumer-lab-93"
+    },
+    "producerProfile": {
+      "value": "producer-lab-93"
     },
     "acrName": {
-      "value": "aifoundry04acr"
+      "value": "aifoundry93acr"
     },
     "acrServer": {
-      "value": "aifoundry04acr.azurecr.io"
-    },
-    "consumerImageTag": {
-      "value": "v1"
-    },
-    "producerImageTag": {
-      "value": "v1"
+      "value": "aifoundry93acr.azurecr.io"
     },
     "cosmosDbEndpoint": {
       "value": "YOUR_COSMOSDB_ENDPOINT"

@@ -12,10 +12,9 @@ param managedEnvProducerName string
 param containerAppConsumerName string
 param containerAppProducerName string
 param consumerProfile string
+param producerProfile string
 param acrName string
 param acrServer string
-param consumerImageTag string
-param producerImageTag string
 param cosmosDbEndpoint string
 param cosmosDbKey string
 param cosmosDbDatabase string
@@ -26,6 +25,7 @@ param azureOpenAiDeploymentName string
 param azureOpenAiResourceId string
 param tenantId string
 param clientId string
+@secure()
 param clientSecret string
 
 resource managedEnvironment_consumer 'Microsoft.App/managedEnvironments@2025-01-01' = {
@@ -82,6 +82,12 @@ resource managedEnvironment_producer 'Microsoft.App/managedEnvironments@2025-01-
         workloadProfileType: 'Consumption'
         name: 'Consumption'
       }
+      {
+        workloadProfileType: 'D4'
+        name: producerProfile
+        minimumCount: 1
+        maximumCount: 1
+      }
     ]
     peerAuthentication: {
       mtls: {
@@ -135,7 +141,6 @@ resource storageAccounts_storptubacthoptckpnt_name_resource 'Microsoft.Storage/s
   }
   sku: {
     name: 'Standard_LRS'
-    tier: 'Standard'
   }
   kind: 'StorageV2'
   properties: {
@@ -186,7 +191,6 @@ resource registries_acr_name_resource 'Microsoft.ContainerRegistry/registries@20
   }
   sku: {
     name: 'Standard'
-    tier: 'Standard'
   }
   properties: {
     adminUserEnabled: true
@@ -385,12 +389,12 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
   name: containerAppProducerName
   location: location
   identity: {
-    type: 'None'
+    type: 'SystemAssigned'
   }
   properties: {
     managedEnvironmentId: managedEnvironment_producer.id
     environmentId: managedEnvironment_producer.id
-    workloadProfileName: 'Consumption'
+    workloadProfileName: producerProfile
     configuration: {
       activeRevisionsMode: 'Single'
       ingress: {
@@ -409,12 +413,6 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
           affinity: 'none'
         }
       }
-      registries: [
-        {
-          server: acrServer
-          identity: 'system-environment'
-        }
-      ]
       maxInactiveRevisions: 100
       identitySettings: []
     }
@@ -466,14 +464,14 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
             }
           ]
           resources: {
-            cpu: json('0.5')
-            memory: '1Gi'
+            cpu: 2
+            memory: '8Gi'
           }
         }
       ]
       scale: {
         minReplicas: 0
-        maxReplicas: 10
+        maxReplicas: 3
         cooldownPeriod: 300
         pollingInterval: 30
       }
@@ -484,7 +482,6 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
 resource namespaces_batchptulab01_name_PTU_Batch_Send 'Microsoft.EventHub/namespaces/authorizationrules@2024-05-01-preview' = {
   parent: eventHubNamespace
   name: split(eventHubNamespaceAuthRulePTUSendName, '/')[1]
-  location: location
   properties: {
     rights: [
       'Manage'
@@ -497,7 +494,6 @@ resource namespaces_batchptulab01_name_PTU_Batch_Send 'Microsoft.EventHub/namesp
 resource namespaces_batchptulab01_name_RootManageSharedAccessKey 'Microsoft.EventHub/namespaces/authorizationrules@2024-05-01-preview' = {
   parent: eventHubNamespace
   name: split(eventHubNamespaceAuthRuleRootManageName, '/')[1]
-  location: location
   properties: {
     rights: [
       'Listen'
@@ -510,7 +506,6 @@ resource namespaces_batchptulab01_name_RootManageSharedAccessKey 'Microsoft.Even
 resource namespaces_batchptulab01_name_ptu_batch 'Microsoft.EventHub/namespaces/eventhubs@2024-05-01-preview' = {
   parent: eventHubNamespace
   name: eventHubName
-  location: location
   properties: {
     messageTimestampDescription: {
       timestampType: 'LogAppend'
@@ -528,7 +523,6 @@ resource namespaces_batchptulab01_name_ptu_batch 'Microsoft.EventHub/namespaces/
 resource namespaces_batchptulab01_name_default 'Microsoft.EventHub/namespaces/networkrulesets@2024-05-01-preview' = {
   parent: eventHubNamespace
   name: 'default'
-  location: location
   properties: {
     publicNetworkAccess: 'Enabled'
     defaultAction: 'Allow'
@@ -541,10 +535,6 @@ resource namespaces_batchptulab01_name_default 'Microsoft.EventHub/namespaces/ne
 resource storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01' = {
   parent: storageAccounts_storptubacthoptckpnt_name_resource
   name: 'default'
-  sku: {
-    name: 'Standard_LRS'
-    tier: 'Standard'
-  }
   properties: {
     containerDeleteRetentionPolicy: {
       enabled: true
@@ -564,10 +554,6 @@ resource storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/st
 resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_storptubacthoptckpnt_name_default 'Microsoft.Storage/storageAccounts/fileServices@2024-01-01' = {
   parent: storageAccounts_storptubacthoptckpnt_name_resource
   name: 'default'
-  sku: {
-    name: 'Standard_LRS'
-    tier: 'Standard'
-  }
   properties: {
     protocolSettings: {
       smb: {}
@@ -605,26 +591,18 @@ resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_storptu
 resource namespaces_batchptulab01_name_ptu_batch_ptu_batch_send_listen 'Microsoft.EventHub/namespaces/eventhubs/authorizationrules@2024-05-01-preview' = {
   parent: namespaces_batchptulab01_name_ptu_batch
   name: eventHubAuthRuleName
-  location: location
   properties: {
     rights: [
       'Listen'
       'Send'
     ]
-  }
-  dependsOn: [
-    eventHubNamespace
-  ]
+  }  
 }
 
 resource namespaces_batchptulab01_name_ptu_batch_Default 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2024-05-01-preview' = {
   parent: namespaces_batchptulab01_name_ptu_batch
   name: eventHubConsumerGroupName
-  location: location
-  properties: {}
-  dependsOn: [
-    eventHubNamespace
-  ]
+  properties: {}  
 }
 
 resource storageAccounts_storptubacthoptckpnt_name_default_ptu_batch_checkpoint 'Microsoft.Storage/storageAccounts/blobServices/containers@2024-01-01' = {
@@ -637,8 +615,5 @@ resource storageAccounts_storptubacthoptckpnt_name_default_ptu_batch_checkpoint 
     defaultEncryptionScope: '$account-encryption-key'
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
-  }
-  dependsOn: [
-    storageAccounts_storptubacthoptckpnt_name_resource
-  ]
+  }  
 }
