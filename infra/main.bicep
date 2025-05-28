@@ -425,7 +425,7 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
     template: {
       containers: [
         {
-          image: '${acrServer}/ptu_usage_optimizer_api:${producerImageTag}'
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           name: containerAppProducerName
           env: [
             {
