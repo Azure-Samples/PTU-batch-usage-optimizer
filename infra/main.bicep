@@ -51,6 +51,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
 // Derived Cosmos DB endpoint and key
 var cosmosDbEndpoint = cosmosdbAccount.properties.documentEndpoint
 var cosmosDbKey = cosmosdbAccount.listKeys().primaryMasterKey
+var eventHubConnectionString = eventHubSendListenAuthRule.listKeys().primaryConnectionString
 
 resource managedEnvironment_consumer 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvConsumerName
@@ -269,6 +270,10 @@ resource containerApp_consumer 'Microsoft.App/containerapps@2025-01-01' = {
               value: azureOpenAiResourceId
             }
             {
+              name: 'EVENTHUB_CONNECTION_STR'
+              value: eventHubConnectionString
+            }
+            {
               name: 'AZURE_TENANT_ID'
               value: tenantId
             }
@@ -365,6 +370,10 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
             {
               name: 'AZURE_OPENAI_API_KEY'
               value: azureOpenAiApiKey
+            }
+            {
+              name: 'EVENTHUB_CONNECTION_STR'
+              value: eventHubConnectionString
             }
             {
               name: 'AZURE_OPENAI_PTU_DEPLOYMENT_NAME'
@@ -500,15 +509,15 @@ resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_storptu
   }
 }
 
-resource namespaces_batchptulab01_name_ptu_batch_ptu_batch_send_listen 'Microsoft.EventHub/namespaces/eventhubs/authorizationrules@2024-05-01-preview' = {
-   parent: namespaces_batchptulab01_name_ptu_batch
+resource eventHubSendListenAuthRule 'Microsoft.EventHub/namespaces/eventhubs/authorizationrules@2024-05-01-preview' = {
+  parent: namespaces_batchptulab01_name_ptu_batch
   name: eventHubAuthRuleName
   properties: {
     rights: [
       'Listen'
       'Send'
     ]
-  }  
+  }
 }
 
 resource namespaces_batchptulab01_name_ptu_batch_Default 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2024-05-01-preview' = {
