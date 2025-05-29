@@ -12,10 +12,6 @@ param clientId string
 @secure()
 param clientSecret string
 
-// Add image parameters for container apps
-param consumerImage string
-param producerImage string
-
 // Generate a stable unique suffix per RG
 var suffix = uniqueString(resourceGroup().id)
 // Truncate suffix to 6 chars to keep names under limits
@@ -37,7 +33,20 @@ var consumerProfile = toLower('${namePrefix}pc${shortSuffix}')  //  prefix+pc+su
 var producerProfile = toLower('${namePrefix}pp${shortSuffix}')  //  prefix+pp+suffix
 var containerAppConsumerName = '${namePrefix}-ca-cons-${shortSuffix}'
 var containerAppProducerName = '${namePrefix}-ca-prod-${shortSuffix}'
-// acrServer remains if needed elsewhere
+
+// Add Azure Container Registry
+var acrName = toLower('${namePrefix}acr${shortSuffix}')
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+  name: acrName
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    adminUserEnabled: true
+  }
+}
 
 // Derived Cosmos DB endpoint and key
 var cosmosDbEndpoint = cosmosdbAccount.properties.documentEndpoint
@@ -216,7 +225,7 @@ resource containerApp_consumer 'Microsoft.App/containerapps@2025-01-01' = {
     template: {
       containers: [
         {
-          image: consumerImage
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           name: containerAppConsumerName
           env: [
             {
@@ -322,7 +331,7 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
     template: {
       containers: [
         {
-          image: producerImage
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           name: containerAppProducerName
           env: [
             {

@@ -6,7 +6,7 @@
       "value": "eastus2"
     },
     "namePrefix": {
-      "value": "optm03"
+      "value": "optm02"
     },
     "eventHubConsumerGroupName": {
       "value": "$Default"
@@ -37,12 +37,6 @@
     },
     "clientSecret": {
       "value": "YOUR_CLIENT_SECRET"
-    },
-    "consumerImage": {
-      "value": "aifoundry01acr.azurecr.io/ptu_usage_optimizer_consumer:v1"
-    },
-    "producerImage": {
-      "value": "aifoundry01acr.azurecr.io/ptu_usage_optimizer_api:v1"
     }
   }
 }
