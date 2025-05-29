@@ -52,6 +52,8 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
 var cosmosDbEndpoint = cosmosdbAccount.properties.documentEndpoint
 var cosmosDbKey = cosmosdbAccount.listKeys().primaryMasterKey
 var eventHubConnectionString = eventHubSendListenAuthRule.listKeys().primaryConnectionString
+var storageAccountKey = storageAccounts_storptubacthoptckpnt_name_resource.listKeys().keys[0].value
+var storageCheckpointConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};AccountKey=${storageAccountKey};EndpointSuffix=${environment().suffixes.storage}'
 
 resource managedEnvironment_consumer 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvConsumerName
@@ -274,6 +276,10 @@ resource containerApp_consumer 'Microsoft.App/containerapps@2025-01-01' = {
               value: eventHubConnectionString
             }
             {
+              name: 'STORAGE_ACCOUNT_CHECKPOINT_STORE'
+              value: storageCheckpointConnectionString
+            }            
+            {
               name: 'AZURE_TENANT_ID'
               value: tenantId
             }
@@ -374,6 +380,10 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
             {
               name: 'EVENTHUB_CONNECTION_STR'
               value: eventHubConnectionString
+            }
+            {
+              name: 'STORAGE_ACCOUNT_CHECKPOINT_STORE'
+              value: storageCheckpointConnectionString
             }
             {
               name: 'AZURE_OPENAI_PTU_DEPLOYMENT_NAME'

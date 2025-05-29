@@ -6,7 +6,7 @@
       "value": "eastus2"
     },
     "namePrefix": {
-      "value": "optm02"
+      "value": "optm03"
     },
     "eventHubConsumerGroupName": {
       "value": "$Default"
