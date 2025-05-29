@@ -1,22 +1,6 @@
 param location string
-param eventHubNamespaceName string
-param eventHubName string
-param eventHubAuthRuleName string
-param eventHubNamespaceAuthRulePTUSendName string
-param eventHubNamespaceAuthRuleRootManageName string
+param namePrefix string // User-defined acronym/prefix
 param eventHubConsumerGroupName string
-param storageAccountName string
-param storageContainerName string
-param managedEnvConsumerName string
-param managedEnvProducerName string
-param containerAppConsumerName string
-param containerAppProducerName string
-param consumerProfile string
-param producerProfile string
-param acrName string
-param acrServer string
-param cosmosDbEndpoint string
-param cosmosDbKey string
 param cosmosDbDatabase string
 param cosmosDbContainer string
 param azureOpenAiEndpoint string
@@ -27,6 +11,34 @@ param tenantId string
 param clientId string
 @secure()
 param clientSecret string
+
+// Generate a stable unique suffix per RG
+var suffix = uniqueString(resourceGroup().id)
+// Truncate suffix to 6 chars to keep names under limits
+var shortSuffix = toLower(substring(suffix, 0, 6))
+
+// Derived resource names using shortened suffix
+// Derive Cosmos DB account name (lowercase, starts with letter):
+var cosmosAccountName = toLower('${namePrefix}cos${shortSuffix}')
+var eventHubNamespaceName = '${namePrefix}-ehns-${shortSuffix}'
+var eventHubName = '${namePrefix}-eh-${shortSuffix}'
+var eventHubAuthRuleName = '${namePrefix}-eh-rule-${shortSuffix}'
+var eventHubNamespaceAuthRulePTUSendName = '${namePrefix}-send-listen-${shortSuffix}'
+var eventHubNamespaceAuthRuleRootManageName = '${namePrefix}-rootmanage-${shortSuffix}'
+var storageAccountName = toLower('${namePrefix}stg${shortSuffix}')
+var storageContainerName = '${namePrefix}-checkpoint-${shortSuffix}'
+var managedEnvConsumerName = '${namePrefix}-env-cons-${shortSuffix}'
+var managedEnvProducerName = '${namePrefix}-env-prod-${shortSuffix}'
+var consumerProfile = toLower('${namePrefix}pc${shortSuffix}')  //  prefix+pc+suffix, max 14 chars
+var producerProfile = toLower('${namePrefix}pp${shortSuffix}')  //  prefix+pp+suffix
+var containerAppConsumerName = '${namePrefix}-ca-cons-${shortSuffix}'
+var containerAppProducerName = '${namePrefix}-ca-prod-${shortSuffix}'
+var acrName = toLower('${namePrefix}acr${shortSuffix}')
+// acrServer remains if needed elsewhere
+
+// Derived Cosmos DB endpoint and key
+var cosmosDbEndpoint = cosmosdbAccount.properties.documentEndpoint
+var cosmosDbKey = cosmosdbAccount.listKeys().primaryMasterKey
 
 resource managedEnvironment_consumer 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: managedEnvConsumerName
@@ -480,8 +492,8 @@ resource containerApp_producer 'Microsoft.App/containerapps@2025-01-01' = {
 }
 
 resource namespaces_batchptulab01_name_PTU_Batch_Send 'Microsoft.EventHub/namespaces/authorizationrules@2024-05-01-preview' = {
-  parent: eventHubNamespace
-  name: split(eventHubNamespaceAuthRulePTUSendName, '/')[1]
+   parent: eventHubNamespace
+  name: eventHubNamespaceAuthRulePTUSendName
   properties: {
     rights: [
       'Manage'
@@ -492,8 +504,8 @@ resource namespaces_batchptulab01_name_PTU_Batch_Send 'Microsoft.EventHub/namesp
 }
 
 resource namespaces_batchptulab01_name_RootManageSharedAccessKey 'Microsoft.EventHub/namespaces/authorizationrules@2024-05-01-preview' = {
-  parent: eventHubNamespace
-  name: split(eventHubNamespaceAuthRuleRootManageName, '/')[1]
+   parent: eventHubNamespace
+  name: eventHubNamespaceAuthRuleRootManageName
   properties: {
     rights: [
       'Listen'
@@ -504,7 +516,7 @@ resource namespaces_batchptulab01_name_RootManageSharedAccessKey 'Microsoft.Even
 }
 
 resource namespaces_batchptulab01_name_ptu_batch 'Microsoft.EventHub/namespaces/eventhubs@2024-05-01-preview' = {
-  parent: eventHubNamespace
+   parent: eventHubNamespace
   name: eventHubName
   properties: {
     messageTimestampDescription: {
@@ -589,7 +601,7 @@ resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_storptu
 }
 
 resource namespaces_batchptulab01_name_ptu_batch_ptu_batch_send_listen 'Microsoft.EventHub/namespaces/eventhubs/authorizationrules@2024-05-01-preview' = {
-  parent: namespaces_batchptulab01_name_ptu_batch
+   parent: namespaces_batchptulab01_name_ptu_batch
   name: eventHubAuthRuleName
   properties: {
     rights: [
@@ -600,14 +612,14 @@ resource namespaces_batchptulab01_name_ptu_batch_ptu_batch_send_listen 'Microsof
 }
 
 resource namespaces_batchptulab01_name_ptu_batch_Default 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2024-05-01-preview' = {
-  parent: namespaces_batchptulab01_name_ptu_batch
+   parent: namespaces_batchptulab01_name_ptu_batch
   name: eventHubConsumerGroupName
   properties: {}  
 }
 
 resource storageAccounts_storptubacthoptckpnt_name_default_ptu_batch_checkpoint 'Microsoft.Storage/storageAccounts/blobServices/containers@2024-01-01' = {
-  parent: storageAccounts_storptubacthoptckpnt_name_default
-  name: 'ptu-batch-checkpoint'
+   parent: storageAccounts_storptubacthoptckpnt_name_default
+  name: storageContainerName
   properties: {
     immutableStorageWithVersioning: {
       enabled: false
@@ -616,4 +628,52 @@ resource storageAccounts_storptubacthoptckpnt_name_default_ptu_batch_checkpoint 
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
   }  
+}
+
+// Cosmos DB resources
+// Cosmos DB account
+resource cosmosdbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-11-15' = {
+  name: cosmosAccountName
+  location: location
+  kind: 'GlobalDocumentDB'
+  properties: {
+    databaseAccountOfferType: 'Standard'
+    locations: [
+      {
+        locationName: location
+        failoverPriority: 0
+        isZoneRedundant: false
+      }
+    ]
+  }
+}
+
+// Cosmos DB SQL Database
+resource cosmosdbSqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-11-15' = {
+  parent: cosmosdbAccount
+  name: cosmosDbDatabase
+  properties: {
+    resource: {
+      id: cosmosDbDatabase
+    }
+    options: {}
+  }
+}
+
+// Cosmos DB Container
+resource cosmosdbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-11-15' = {
+  parent: cosmosdbSqlDb
+  name: cosmosDbContainer
+  properties: {
+    resource: {
+      id: cosmosDbContainer
+      partitionKey: {
+        paths: [
+          '/id'
+        ]
+        kind: 'Hash'
+      }
+    }
+    options: {}
+  }
 }

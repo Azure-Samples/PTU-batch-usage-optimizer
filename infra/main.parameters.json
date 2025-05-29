@@ -5,59 +5,11 @@
     "location": {
       "value": "eastus2"
     },
-    "eventHubNamespaceName": {
-      "value": "batchptulab93"
-    },
-    "eventHubName": {
-      "value": "ptu-batch"
-    },
-    "eventHubAuthRuleName": {
-      "value": "ptu-batch-send-listen"
-    },
-    "eventHubNamespaceAuthRulePTUSendName": {
-      "value": "batchptulab93/PTU-Batch-Send"
-    },
-    "eventHubNamespaceAuthRuleRootManageName": {
-      "value": "batchptulab93/RootManageSharedAccessKey"
+    "namePrefix": {
+      "value": "optm02"
     },
     "eventHubConsumerGroupName": {
       "value": "$Default"
-    },
-    "storageAccountName": {
-      "value": "storptubacthoptckpnt93"
-    },
-    "storageContainerName": {
-      "value": "ptu-batch-checkpoint93"
-    },
-    "managedEnvConsumerName": {
-      "value": "managedEnvironment-consumer-lab-93"
-    },
-    "managedEnvProducerName": {
-      "value": "managedEnvironment-producer-lab-93"
-    },
-    "containerAppConsumerName": {
-      "value": "consumer-lab-93"
-    },
-    "containerAppProducerName": {
-      "value": "producer-lab-93"
-    },
-    "consumerProfile": {
-      "value": "consumer-lab-93"
-    },
-    "producerProfile": {
-      "value": "producer-lab-93"
-    },
-    "acrName": {
-      "value": "aifoundry93acr"
-    },
-    "acrServer": {
-      "value": "aifoundry93acr.azurecr.io"
-    },
-    "cosmosDbEndpoint": {
-      "value": "YOUR_COSMOSDB_ENDPOINT"
-    },
-    "cosmosDbKey": {
-      "value": "YOUR_COSMOSDB_KEY"
     },
     "cosmosDbDatabase": {
       "value": "db_ptu_batch_optimizer"
