@@ -290,9 +290,9 @@ This project uses [CosmosDB native RBAC](https://aka.ms/cosmos-native-rbac) for 
 | `COSMOSDB_URI`            | CosmosDB account URI                        |
 | `COSMOSDB_DATABASE`       | CosmosDB database name                      |
 | `COSMOSDB_CONTAINER`      | CosmosDB container name                     |
-| `AZURE_CLIENT_ID`         | Azure Entra ID client ID                    |
-| `AZURE_TENANT_ID`         | Azure Entra ID tenant ID                    |
-| `AZURE_CLIENT_SECRET`     | Azure Entra ID client secret                |
+| `AZURE_CLIENT_ID`         | Azure Entra ID client ID of the Service Principal                   |
+| `AZURE_TENANT_ID`         | Azure Entra ID tenant ID of the Service Principa                    |
+| `AZURE_CLIENT_SECRET`     | Azure Entra ID client secret of the Service Principal                   |
 | `PTU_MAX_UTILIZATION`     | Max allowed PTU utilization (e.g., 0.7)     |
 
 ---
