@@ -172,6 +172,18 @@ _Send a batch of Azure OpenAI JSON payloads. Each event in the array will be que
 
 ## 🐳 Docker & Deployment
 
+1. ⚙️ **Provision Azure resources**  
+- **Deploy your Bicep template into the target resource group:**   
+   ```bash
+   az deployment group create \
+     --resource-group <YOUR-RESOURCE-GROUP> \
+     --template-file infra/main.bicep \
+     --parameters infra/main.parameters.json
+> **Note:**  
+> Before deploying, update [`infra/main.parameters.json`](infra/main.parameters.json) with your desired resource prefix, Azure OpenAI resource details, and Service Principal credentials. This ensures resources are named correctly and the deployment has the necessary permissions.
+> The [Service Principal](https://learn.microsoft.com/en-us/azure/devops/integrate/get-started/authentication/service-principal-managed-identity?view=azure-devops#about-service-principals-and-managed-identities) must be part of the *Monitoring Reader* role into your Azure OpenAI resource.
+
+2. 🚀 **Build & Push `consumer` and `producer`(api) Docker images**
 - **Build API Docker Image Locally:**
   ```bash
   ./util/build-docker-image.sh api
@@ -188,33 +200,20 @@ _Send a batch of Azure OpenAI JSON payloads. Each event in the array will be que
   ```bash
   ./util/push-docker-image.sh consumer
   ```
-- **Run with Docker Compose:**
-  ```bash
-  docker-compose up --build
-  ```
-
-### 🚀 Build & Push to Azure Container Registry (ACR) using provided scripts
-
-1. **Configure your variables:**
-   - Edit `util/variables.sh` with your ACR name, image names, and tag.
-2. **Login to Azure:**
-   ```bash
-   az login
-   ```
-3. **Build the Docker images:**
-   ```bash
-   ./util/build-docker-image.sh api
-   ./util/build-docker-image.sh consumer
-   ```
-4. **Push the images to ACR:**
-   ```bash
-   ./util/push-docker-image.sh api
-   ./util/push-docker-image.sh consumer
-   ```
-
 These scripts will automatically tag and push your images to the Azure Container Registry as configured in your `variables.sh` file.
 
----
+> **Note:**  
+> Before pushing the images, update [`util/variables.sh`](util/variables.sh) with Azure Container Registry and Azure Containers Apps created ealier.
+
+3. ✈ Deploy the images to [Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/overview)
+- **Deploy `consumer` and `producer`(api):**
+  ```bash
+  ./util/deploy-containerapps.sh
+   ```
+
+   ---
+
+   If you have completed the steps above successfully, you are now ready to use both the API (producer) and the consumer service. Refer to the [API Endpoints](#-api-endpoints) section for details on how to interact with the API and process requests.
 
 ## ![Azure Databricks Logo](images/icon-service-Azure-Databricks.svg) Databricks Integration
 
